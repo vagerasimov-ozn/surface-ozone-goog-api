@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+<title>Google Maps JavaScript API v3 Example: Polygon Arrays</title>
+<link href="http://code.google.com/apis/maps/documentation/javascript/examples/default.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
+<script type="text/javascript">
+
+  var map;
+  var infoWindow;
+
+  function initialize() {
+    var myLatLng = new google.maps.LatLng(34.72432, -86.64472);
+    var myOptions = {
+      zoom: 18,
+      center: myLatLng,
+      mapTypeId: google.maps.MapTypeId.TERRAIN
+    };
+	
+	var allText=[];
+	var allTextLines = [];
+	var fldHeading=[]
+	var txtFile = new XMLHttpRequest();
+	
+	txtFile.open("GET", "http://vortex.nsstc.uah.edu/atmchem/sonde_surface_data/SFTSTSFC.dat", true);
+	txtFile.onreadystatechange=function()
+	{
+	
+	
+	allTextLines = allText.split(/\r\n|\n/);
+	
+	
+	fldHeading = allTextLines[0].split(',');
+	
+	
+
+    var bermudaTriangle;
+
+    map = new google.maps.Map(document.getElementById("map_canvas"),
+        myOptions);
+
+    var triangleCoords = [
+        new google.maps.LatLng(34.72432, -86.64472),
+        new google.maps.LatLng(34.72428, -86.64476),
+        new google.maps.LatLng(34.72436, -86.64476)
+    ];
+
+    bermudaTriangle = new google.maps.Polygon({
+      paths: triangleCoords,
+      strokeColor: "#FF0000",
+      strokeOpacity: 0.8,
+      strokeWeight: 3,
+      fillColor: "#FF0000",
+      fillOpacity: 0.35
+    });
+
+    bermudaTriangle.setMap(map);
+    
+    // Add a listener for the click event
+    google.maps.event.addListener(bermudaTriangle, 'click', showArrays);
+    
+    infowindow = new google.maps.InfoWindow();
+  }
+
+  function showArrays(event) {
+
+    // Since this Polygon only has one path, we can call getPath()
+    // to return the MVCArray of LatLngs
+    var vertices = this.getPath();
+
+    var contentString = "<b>Bermuda Triangle Polygon</b><br />";
+    contentString += "Clicked Location: <br />" + event.latLng.lat() + "," + event.latLng.lng() + "<br />";
+
+    // Iterate over the vertices.
+    for (var i =0; i < vertices.length; i++) {
+      var xy = vertices.getAt(i);
+      contentString += "<br />" + "Coordinate: " + i + "<br />" + xy.lat() +"," + xy.lng();
+    }
+
+    // Replace our Info Window's content and position
+    infowindow.setContent(contentString);
+    infowindow.setPosition(event.latLng);
+
+    infowindow.open(map);
+  }  
+</script>
+</head>
+<body onload="initialize()">
+  <div id="map_canvas"></div>
+</body>
+</html>
